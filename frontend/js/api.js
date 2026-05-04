@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-const API_URL = 'http://localhost:3000';
+const API_URL = '';
 
 async function request(endpoint, method = 'GET', body = null) {
         const options = {
