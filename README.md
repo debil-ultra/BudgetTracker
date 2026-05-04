@@ -28,12 +28,12 @@ A full-stack budget tracking web application for managing personal finances. Tra
 **Frontend**
 - HTML, CSS, JavaScript (Vanilla)
 - Chart.js for data visualization
-- 
+
 **Backend**
 - Node.js
 - Express.js
 - SQLite (via better-sqlite3)
-- 
+
 **Architecture**
 - RESTful API design
 - Raw SQL queries (no ORM)
