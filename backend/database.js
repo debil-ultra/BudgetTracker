@@ -23,7 +23,8 @@ db.exec(`
 
 const count = db.prepare('SELECT COUNT(*) as count FROM categories').get();
 if(count.count === 0) {
-    const insert = db.prepare('INSERT INTO categories (name, type, color) VALUES (?, ?, ?)');    insert.run('Salary', 'income', '#2ecc71');
+    const insert = db.prepare('INSERT INTO categories (name, type, color) VALUES (?, ?, ?)');    
+    insert.run('Salary', 'income', '#2ecc71');
     insert.run('Freelance', 'income', '#1abc9c');
     insert.run('Food', 'expense', '#e74c3c');
     insert.run('Rent', 'expense', '#c0392b');
