@@ -9,7 +9,7 @@ A full-stack budget tracking web application for managing personal finances. Tra
  
 ## 📸 Preview
  
-![BudgetTracker Dashboard](./screenshot.png)
+![BudgetTracker Dashboard](./preview.png)
  
 ---
  
