@@ -6,7 +6,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-const API_URL = '';
+const API_URL = window.location.hostname === 'localhost'
+    ? 'http://localhost:3000'
+    : 'https://budgettracker-woxx.onrender.com';
+
 
 async function request(endpoint, method = 'GET', body = null) {
         const options = {
