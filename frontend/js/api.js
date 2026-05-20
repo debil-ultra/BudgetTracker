@@ -6,7 +6,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-const API_URL = window.location.hostname === 'localhost'
+document.querySelectorAll('input[type="date"]').forEach(input => {
+    input.addEventListener('click', () => {
+        try { input.showPicker(); } catch (e) {}
+    });
+});
+
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:3000'
     : 'https://budgettracker-woxx.onrender.com';
 
@@ -51,4 +57,16 @@ export const transactionsAPI = {
     create: (data) => request('/transactions', 'POST', data),
     update: (id, data) => request(`/transactions/${id}`, 'PUT', data),
     delete: (id) => request(`/transactions/${id}`, 'DELETE')
+};
+
+export const budgetsAPI = {
+    getAll: (filters = {}) => {
+        const params = new URLSearchParams(filters);
+        const query = params.toString() ? `?${params.toString()}` : '';
+        return request(`/budgets${query}`);
+    },
+    getOne: (id) => request(`/budgets/${id}`),
+    create: (data) => request('/budgets', 'POST', data),
+    update: (id, data) => request(`/budgets/${id}`, 'PUT', data),
+    delete: (id) => request(`/budgets/${id}`, 'DELETE')
 };

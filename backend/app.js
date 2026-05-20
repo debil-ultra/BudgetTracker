@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import './database.js';
 import categoriesRouter from './routes/categories.js';
 import transactionsRouter from './routes/transactions.js';
+import budgetsRouter from './routes/budgets.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,6 +18,7 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 
 app.use('/categories', categoriesRouter);
 app.use('/transactions', transactionsRouter);
+app.use('/budgets', budgetsRouter);
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/index.html'));

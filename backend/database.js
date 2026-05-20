@@ -19,6 +19,16 @@ db.exec(`
         category_id INTEGER NOT NULL,
         FOREIGN KEY(category_id) REFERENCES categories(id)
     );
+
+    CREATE TABLE IF NOT EXISTS budgets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    category_id INTEGER NOT NULL,
+    month TEXT NOT NULL,
+    limit_amount REAL NOT NULL,
+    FOREIGN KEY(category_id) REFERENCES categories(id),
+    UNIQUE(category_id, month)
+    );
+
 `);
 
 const count = db.prepare('SELECT COUNT(*) as count FROM categories').get();

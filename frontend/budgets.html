@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budgets - Budget Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav>
+    <div class="nav-brand">
+        <span class="brand-income">Budget</span><span class="brand-expense">Tracker</span>
+    </div>
+    <a href="index.html">Dashboard</a>
+    <a href="transactions.html">Transactions</a>
+    <a href="budgets.html" class="active">Budgets</a>
+    <a href="categories.html">Categories</a>
+</nav>
+
+<main>
+    <h1>Budgets</h1>
+
+    <section class="filters">
+        <input type="text" id="filter-month" placeholder="YYYY-MM" pattern="\d{4}-\d{2}" maxlength="7">
+        <button id="btn-filter">Filter</button>
+        <button id="btn-clear">Clear</button>
+    </section>
+
+    <section class="list-section">
+        <h2>All Budgets</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Month</th>
+                <th>Category</th>
+                <th>Limit</th>
+                <th>Spent</th>
+                <th>Progress</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="budgets-body">
+            <tr>
+                <td colspan="6">Loading...</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="form-section">
+        <h2 id="form-title">Add Budget</h2>
+        <form id="budget-form">
+            <input type="hidden" id="budget-id">
+
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" required>
+                    <option value="">Select a category</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="month">Month</label>
+                <input type="text" id="month" placeholder="YYYY-MM" pattern="\d{4}-\d{2}" maxlength="7" required>            </div>
+
+            <div class="form-group">
+                <label for="limit_amount">Limit (€)</label>
+                <input type="number" id="limit_amount" min="0.01" step="0.01" required>
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit" id="btn-submit">Add Budget</button>
+                <button type="button" id="btn-cancel" class="hidden">Cancel</button>
+            </div>
+        </form>
+    </section>
+</main>
+
+<script type="module" src="js/budgets.js"></script>
+
+</body>
+</html>
