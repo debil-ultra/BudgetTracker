@@ -403,4 +403,6 @@ canvas {
     th, td {
         padding: 0.6rem 0.5rem;
     }
+
+    .charts { flex-direction: column; }
 }

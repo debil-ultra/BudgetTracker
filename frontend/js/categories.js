@@ -113,4 +113,4 @@ document.getElementById('btn-cancel').addEventListener('click', cancelEdit);
 loadCategories();
 
 window.startEdit = startEdit;
-window.deleteTransaction = deleteTransaction;
+window.deleteCategory = deleteCategory;
