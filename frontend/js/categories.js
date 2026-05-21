@@ -2,6 +2,19 @@ import { categoriesAPI } from './api.js';
 
 let editingId = null;
 
+const DEFAULT_COLORS = {
+    income: '#2ecc71',
+    expense: '#e74c3c'
+};
+
+function getDefaultColor(type) {
+    return DEFAULT_COLORS[type] || DEFAULT_COLORS.income;
+}
+
+function setColorInput(value) {
+    document.getElementById('color').value = value;
+}
+
 async function loadCategories() {
     try {
         const categories = await categoriesAPI.getAll();
@@ -60,6 +73,7 @@ async function startEdit(id) {
         document.getElementById('category-id').value = id;
         document.getElementById('name').value = category.name;
         document.getElementById('type').value = category.type;
+        setColorInput(category.color);
 
         document.getElementById('form-title').textContent = 'Edit Category';
         document.getElementById('btn-submit').textContent = 'Update Category';
@@ -73,6 +87,7 @@ async function startEdit(id) {
 function cancelEdit() {
     editingId = null;
     document.getElementById('category-form').reset();
+    setColorInput(DEFAULT_COLORS.income);
     document.getElementById('form-title').textContent = 'Add Category';
     document.getElementById('btn-submit').textContent = 'Add Category';
     document.getElementById('btn-cancel').classList.add('hidden');
@@ -83,6 +98,7 @@ document.getElementById('category-form').addEventListener('submit', async (e) =>
 
     const name = document.getElementById('name').value.trim();
     const type = document.getElementById('type').value;
+    const color = document.getElementById('color').value;
 
     if (!name) {
         document.getElementById('name').classList.add('error');
@@ -91,7 +107,7 @@ document.getElementById('category-form').addEventListener('submit', async (e) =>
 
     document.getElementById('name').classList.remove('error');
 
-    const data = { name, type };
+    const data = { name, type, color };
 
     try {
         if (editingId) {
@@ -109,6 +125,12 @@ document.getElementById('category-form').addEventListener('submit', async (e) =>
 });
 
 document.getElementById('btn-cancel').addEventListener('click', cancelEdit);
+
+document.getElementById('type').addEventListener('change', (e) => {
+    if (!editingId) {
+        setColorInput(getDefaultColor(e.target.value));
+    }
+});
 
 loadCategories();
 

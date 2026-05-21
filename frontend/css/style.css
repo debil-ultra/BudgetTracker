@@ -233,6 +233,16 @@ input[type="month"] {
     cursor: pointer;
 }
 
+input[type="color"] {
+    width: 4rem;
+    height: 2.75rem;
+    padding: 0.25rem;
+    cursor: pointer;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    background-color: var(--background);
+}
+
 .charts {
     display: flex;
     gap: 1.5rem;
