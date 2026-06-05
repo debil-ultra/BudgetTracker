@@ -1,20 +1,43 @@
+/**
+ * Budget routes. Each budget ties a spending limit to one category for a
+ * given month (YYYY-MM). List/detail endpoints also compute how much has
+ * been spent by summing matching transactions in that month.
+ *
+ * @module routes/budgets
+ */
+
 import { Router } from 'express';
-import db from '../database.js';
+import db from '../database/seed.js';
+import { validateBudgetBody } from '../helpers/validators.js';
+import { sendValidationError } from '../helpers/response.js';
+import { asyncHandler } from '../helpers/errorHandler.js';
+import {
+    selectBudgetsWithSpent,
+    getBudgetById,
+    getBudgetByIdOnly,
+    getCategoryById,
+    getBudgetByCategoryAndMonth,
+    getBudgetByCategoryAndMonthExcludingId,
+    insertBudget,
+    updateBudget,
+    deleteBudget
+} from '../helpers/queries.js';
 
 const router = Router();
 
-router.get('/', (req, res) => {
+/**
+ * GET /budgets
+ *
+ * Returns budgets with category info and a computed `spent` total.
+ * Optional query params: `month` (YYYY-MM), `category_id`.
+ *
+ * The spent amount comes from a LEFT JOIN on transactions where the
+ * transaction date falls in the same year-month as the budget
+ * (`strftime('%Y-%m', transactions.date) = budgets.month`).
+ */
+router.get('/', asyncHandler((req, res) => {
     const { month, category_id } = req.query;
-
-    let query = `
-        SELECT budgets.*, categories.name as category_name, categories.color as color,
-            COALESCE(SUM(transactions.amount), 0) as spent
-        FROM budgets
-        JOIN categories ON budgets.category_id = categories.id
-        LEFT JOIN transactions ON transactions.category_id = budgets.category_id
-            AND strftime('%Y-%m', transactions.date) = budgets.month
-    `;
-
+    let query = selectBudgetsWithSpent;
     const params = [];
     const conditions = [];
 
@@ -33,111 +56,89 @@ router.get('/', (req, res) => {
     }
 
     query += ' GROUP BY budgets.id ORDER BY budgets.month DESC';
-
     const budgets = db.prepare(query).all(...params);
     res.json(budgets);
-});
+}));
 
-router.get('/:id', (req, res) => {
+/** GET /budgets/:id — single budget with the same spent calculation as the list endpoint. */
+router.get('/:id', asyncHandler((req, res) => {
     const { id } = req.params;
-
-    const budget = db.prepare(`
-        SELECT budgets.*, categories.name as category_name, categories.color as color,
-            COALESCE(SUM(transactions.amount), 0) as spent
-        FROM budgets
-        JOIN categories ON budgets.category_id = categories.id
-        LEFT JOIN transactions ON transactions.category_id = budgets.category_id
-            AND strftime('%Y-%m', transactions.date) = budgets.month
-        WHERE budgets.id = ?
-        GROUP BY budgets.id
-    `).get(id);
-
+    const budget = db.prepare(getBudgetById).get(id);
     if (!budget) {
         return res.status(404).json({ error: 'Budget not found' });
     }
-
     res.json(budget);
-});
+}));
 
-router.post('/', (req, res) => {
+/**
+ * POST /budgets
+ *
+ * Creates a budget. Rejects duplicate category+month pairs (409) and
+ * validates that month is YYYY-MM and limit_amount is a positive number.
+ */
+router.post('/', asyncHandler((req, res) => {
     const { category_id, month, limit_amount } = req.body;
-
-    if (!category_id || !month || !limit_amount) {
-        return res.status(400).json({ error: 'category_id, month and limit_amount are required' });
+    const validationError = validateBudgetBody({ category_id, month, limit_amount });
+    if (validationError) {
+        return sendValidationError(res, validationError);
     }
 
-    if (isNaN(limit_amount) || limit_amount <= 0) {
-        return res.status(400).json({ error: 'limit_amount must be a positive number' });
-    }
-
-    if (!/^\d{4}-\d{2}$/.test(month)) {
-        return res.status(400).json({ error: 'month must be in YYYY-MM format' });
-    }
-
-    const category = db.prepare('SELECT * FROM categories WHERE id = ?').get(category_id);
+    const category = db.prepare(getCategoryById).get(category_id);
     if (!category) {
         return res.status(404).json({ error: 'Category not found' });
     }
 
-    const existing = db.prepare('SELECT * FROM budgets WHERE category_id = ? AND month = ?').get(category_id, month);
+    const existing = db.prepare(getBudgetByCategoryAndMonth).get(category_id, month);
     if (existing) {
         return res.status(409).json({ error: 'A budget for this category and month already exists' });
     }
 
-    const result = db.prepare('INSERT INTO budgets (category_id, month, limit_amount) VALUES (?, ?, ?)')
-        .run(category_id, month, limit_amount);
-
+    const result = db.prepare(insertBudget).run(category_id, month, limit_amount);
     res.status(201).json({ id: result.lastInsertRowid, category_id: Number(category_id), month, limit_amount });
-});
+}));
 
-router.put('/:id', (req, res) => {
+/**
+ * PUT /budgets/:id
+ *
+ * Updates a budget. Same validation as POST, but allows keeping the same
+ * category+month on the record being edited (checks duplicates with `id != ?`).
+ */
+router.put('/:id', asyncHandler((req, res) => {
     const { id } = req.params;
     const { category_id, month, limit_amount } = req.body;
-
-    const budget = db.prepare('SELECT * FROM budgets WHERE id = ?').get(id);
+    const budget = db.prepare(getBudgetByIdOnly).get(id);
     if (!budget) {
         return res.status(404).json({ error: 'Budget not found' });
     }
 
-    if (!category_id || !month || !limit_amount) {
-        return res.status(400).json({ error: 'category_id, month and limit_amount are required' });
+    const validationError = validateBudgetBody({ category_id, month, limit_amount });
+    if (validationError) {
+        return sendValidationError(res, validationError);
     }
 
-    if (isNaN(limit_amount) || limit_amount <= 0) {
-        return res.status(400).json({ error: 'limit_amount must be a positive number' });
-    }
-
-    if (!/^\d{4}-\d{2}$/.test(month)) {
-        return res.status(400).json({ error: 'month must be in YYYY-MM format' });
-    }
-
-    const category = db.prepare('SELECT * FROM categories WHERE id = ?').get(category_id);
+    const category = db.prepare(getCategoryById).get(category_id);
     if (!category) {
         return res.status(404).json({ error: 'Category not found' });
     }
 
-    const existing = db.prepare('SELECT * FROM budgets WHERE category_id = ? AND month = ? AND id != ?').get(category_id, month, id);
+    const existing = db.prepare(getBudgetByCategoryAndMonthExcludingId).get(category_id, month, id);
     if (existing) {
         return res.status(409).json({ error: 'A budget for this category and month already exists' });
     }
 
-    db.prepare('UPDATE budgets SET category_id = ?, month = ?, limit_amount = ? WHERE id = ?')
-        .run(category_id, month, limit_amount, id);
-
+    db.prepare(updateBudget).run(category_id, month, limit_amount, id);
     res.json({ id: Number(id), category_id: Number(category_id), month, limit_amount });
-});
+}));
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', asyncHandler((req, res) => {
     const { id } = req.params;
-
-    const budget = db.prepare('SELECT * FROM budgets WHERE id = ?').get(id);
+    const budget = db.prepare(getBudgetByIdOnly).get(id);
     if (!budget) {
         return res.status(404).json({ error: 'Budget not found' });
     }
 
-    db.prepare('DELETE FROM budgets WHERE id = ?').run(id);
-
+    db.prepare(deleteBudget).run(id);
     res.json({ message: 'Budget deleted successfully' });
-});
+}));
 
 export default router;

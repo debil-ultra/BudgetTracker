@@ -97,6 +97,15 @@ function cancelEdit() {
     document.getElementById('btn-cancel').classList.add('hidden');
 }
 
+/**
+ * Client-side validation for the transaction form. Adds/removes an `error`
+ * CSS class on invalid fields so the UI can highlight them.
+ *
+ * @param {number} amount
+ * @param {string} date - YYYY-MM-DD from the date input
+ * @param {string} categoryId
+ * @returns {boolean} True when all fields are valid
+ */
 function validateForm(amount, date, categoryId) {
     let valid = true;
 

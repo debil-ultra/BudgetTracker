@@ -12,11 +12,24 @@ document.querySelectorAll('input[type="date"]').forEach(input => {
     });
 });
 
+/**
+ * Base URL for the REST API. Uses localhost during development and the
+ * deployed Render URL in production (same origin would not reach the backend).
+ * @type {string}
+ */
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:3000'
     : 'https://budgettracker-woxx.onrender.com';
 
-
+/**
+ * Sends a JSON request to the API and parses the JSON response.
+ * Throws an Error with the server's `error` message when the status is not ok.
+ *
+ * @param {string} endpoint - Path starting with `/`, e.g. `/transactions`
+ * @param {string} [method='GET'] - HTTP method
+ * @param {object|null} [body=null] - Request body for POST/PUT (serialized to JSON)
+ * @returns {Promise<object|object[]>} Parsed response body
+ */
 async function request(endpoint, method = 'GET', body = null) {
         const options = {
             method,
@@ -47,7 +60,19 @@ export const categoriesAPI = {
     delete: (id) => request(`/categories/${id}`, 'DELETE')
 };
 
+/** @typedef {Object} TransactionFilters
+ * @property {string} [category_id]
+ * @property {string} [type] - `income` or `expense`
+ * @property {string} [date] - YYYY-MM-DD
+ */
+
+/** @typedef {Object} BudgetFilters
+ * @property {string} [month] - YYYY-MM
+ * @property {string} [category_id]
+ */
+
 export const transactionsAPI = {
+    /** @param {TransactionFilters} [filters] */
     getAll: (filters = {}) => {
         const params = new URLSearchParams(filters);
         const query = params.toString() ? `?${params.toString()}` : '';
@@ -60,6 +85,7 @@ export const transactionsAPI = {
 };
 
 export const budgetsAPI = {
+    /** @param {BudgetFilters} [filters] */
     getAll: (filters = {}) => {
         const params = new URLSearchParams(filters);
         const query = params.toString() ? `?${params.toString()}` : '';

@@ -1,5 +1,9 @@
 import { transactionsAPI } from './api.js';
 
+/**
+ * Fetches all transactions and updates the dashboard summary cards,
+ * recent-transactions table, and income/expense charts.
+ */
 async function loadDashboard() {
     try {
         const transactions = await transactionsAPI.getAll();
@@ -55,6 +59,13 @@ function renderRecentTransactions(transactions) {
     `).join('');
 }
 
+/**
+ * Groups transactions by category name and splits them into income vs expense
+ * buckets. Each bucket stores the running total and the category color for
+ * use in the doughnut charts.
+ *
+ * @param {object[]} transactions - Transactions with `category_type`, `category_name`, `amount`, `color`
+ */
 function renderCharts(transactions) {
     const incomeData = {};
     const expenseData = {};
@@ -83,6 +94,14 @@ function renderCharts(transactions) {
     createChart('expense-chart', 'Expenses by Category', expenseData);
 }
 
+/**
+ * Renders a doughnut chart for a category breakdown.
+ *
+ * @param {string} canvasId - ID of the `<canvas>` element
+ * @param {string} label - Dataset label shown in Chart.js
+ * @param {Record<string, { amount: number, color: string }>} data
+ *   Map of category name → total amount and slice color
+ */
 function createChart(canvasId, label, data) {
     const canvas = document.getElementById(canvasId);
 

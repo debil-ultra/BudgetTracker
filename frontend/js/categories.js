@@ -126,6 +126,7 @@ document.getElementById('category-form').addEventListener('submit', async (e) =>
 
 document.getElementById('btn-cancel').addEventListener('click', cancelEdit);
 
+// When adding (not editing), switch the color picker to the default for the new type.
 document.getElementById('type').addEventListener('change', (e) => {
     if (!editingId) {
         setColorInput(getDefaultColor(e.target.value));

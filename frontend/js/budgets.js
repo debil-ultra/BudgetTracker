@@ -27,6 +27,15 @@ async function loadBudgets(filters = {}) {
     }
 }
 
+/**
+ * Renders the budgets table with a progress bar per row.
+ *
+ * `spent` comes from the API (sum of transactions in that category/month).
+ * Progress is capped at 100% for the bar width, but the label still shows
+ * when a budget is over limit.
+ *
+ * @param {object[]} budgets - Rows with `spent`, `limit_amount`, `month`, `category_name`, `color`
+ */
 function renderBudgets(budgets) {
     const tbody = document.getElementById('budgets-body');
 
@@ -104,6 +113,14 @@ function cancelEdit() {
     document.getElementById('btn-cancel').classList.add('hidden');
 }
 
+/**
+ * Client-side validation for the budget form.
+ *
+ * @param {string} categoryId
+ * @param {string} month - YYYY-MM from the month input
+ * @param {number} limitAmount
+ * @returns {boolean} True when all fields are valid
+ */
 function validateForm(categoryId, month, limitAmount) {
     let valid = true;
 
