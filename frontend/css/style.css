@@ -64,6 +64,11 @@ h2 {
     padding: 1.5rem;
     box-shadow: var(--shadow);
     margin-bottom: 2rem;
+    overflow-x: auto;
+}
+
+.recent-transactions {
+    overflow-x: auto;
 }
 
 table {
