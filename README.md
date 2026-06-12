@@ -7,12 +7,6 @@ A full-stack budget tracking web application for managing personal finances. Tra
  
 ---
  
-## 📸 Preview
- 
-![BudgetTracker Dashboard](./preview.png)
- 
----
- 
 ## ✨ Features
  
 - **Dashboard** — Real-time overview of balance, total income, and total expenses
