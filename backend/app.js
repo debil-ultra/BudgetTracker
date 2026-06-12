@@ -14,9 +14,9 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import './database/seed.js';
-import categoriesRouter from './routes/categories.js';
-import transactionsRouter from './routes/transactions.js';
-import budgetsRouter from './routes/budgets.js';
+import categoriesRouter from './routers/categories.js';
+import transactionsRouter from './routers/transactions.js';
+import budgetsRouter from './routers/budgets.js';
 import { notFoundHandler, globalErrorHandler } from './helpers/errorHandler.js';
 
 const __filename = fileURLToPath(import.meta.url);
