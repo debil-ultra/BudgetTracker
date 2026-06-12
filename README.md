@@ -18,6 +18,7 @@ A full-stack budget tracking web application for managing personal finances. Tra
 - **Dashboard** — Real-time overview of balance, total income, and total expenses
 - **Visual Charts** — Donut charts showing income and expenses broken down by category
 - **Transactions** — Full list of transactions with filtering support and ability to create new ones
+- **Budgets** — Set monthly spending limits per category, track progress with visual bars, and filter by month
 - **Categories** — Manage custom categories (income or expense type) with color coding
 - **REST API** — Clean backend API with structured endpoints for all data operations
 - **Auto-seeded Database** — Default categories created automatically on first run
